@@ -141,11 +141,13 @@ public class SnakeGame extends JFrame {
         JMenuItem aboutItem1 = new JMenuItem("Bilibili视频");
         JMenuItem aboutItem2 = new JMenuItem("微博");
         JMenuItem aboutItem3 = new JMenuItem("QQ群");
-        JMenuItem aboutItem4 = new JMenuItem("Gitee仓库");
+        JMenuItem aboutItem4 = new JMenuItem("Gitee仓库（仅包含发布版本）");
+        JMenuItem aboutItem5 = new JMenuItem("GitHub仓库（包含最新代码）");
         aboutMenu.add(aboutItem1);
         aboutMenu.add(aboutItem2);
         aboutMenu.add(aboutItem3);
         aboutMenu.add(aboutItem4);
+        aboutMenu.add(aboutItem5);
 
         // 添加菜单项监听器
         restartItem.addActionListener(e -> restartGame());
@@ -158,6 +160,7 @@ public class SnakeGame extends JFrame {
         aboutItem2.addActionListener(e -> DialogUtil.openWebPage("https://weibo.com/u/8494970012"));
         aboutItem3.addActionListener(e -> DialogUtil.showDialog("QQ群：1083262649"));
         aboutItem4.addActionListener(e -> DialogUtil.openWebPage("https://gitee.com/wang32412345/snake-game"));
+        aboutItem5.addActionListener(e -> DialogUtil.openWebPage("https://github.com/QW5RI7/snake"));
 
         // 组装菜单栏
         menuBar.add(gameMenu);
