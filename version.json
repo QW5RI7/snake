@@ -1,0 +1,5 @@
+{
+  "version": "1.0",
+  "force_update": false,
+  "changelog": "修复了蛇撞墙的判定问题"
+}
