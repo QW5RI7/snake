@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "force_update": false,
-  "changelog": "修复了蛇撞墙的判定问题"
+  "changelog": "添加了游戏更新功能，游戏会自动读取服务器上的最新版本信息，玩家可以在游戏过程中更新游戏版本"
 }
