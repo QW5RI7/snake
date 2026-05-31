@@ -13,18 +13,23 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 public class Version {
+    /** 是否强制更新 */
     private static boolean forceUpdate;
+    private static String changelog;
+    /** 版本号 */
+    static String version;
     /** 检查版本 */
     private static boolean checkVersion(String DownloadPath) {
         // 检查版本是否最新
         try (JsonReader reader = Json.createReader(new FileReader("version.json"))) {
             JsonObject object = reader.readObject();
-            String version = object.getString("version");
+            String version2 = object.getString("version");
             try (JsonReader reader2 = Json.createReader(new FileReader(DownloadPath))) {
                 JsonObject object2 = reader2.readObject();
-                String version2 = object2.getString("version");
+                version = object2.getString("version");
                 forceUpdate = object2.getBoolean("force_update");
-                if (CheckVersionNumber(version, version2)) {
+                changelog = object2.getString("changelog");
+                if (CheckVersionNumber(version2, version)) {
                     return true;
                 }
             }
@@ -57,7 +62,7 @@ public class Version {
                     int[] result = {JOptionPane.YES_OPTION};
                     // 如果不是强制更新，弹窗提示用户更新游戏
                     if (!forceUpdate) {
-                        SwingUtilities.invokeAndWait(() -> result[0] = DialogUtil.showDialog("版本更新","发现新版本，是否更新？"));
+                        SwingUtilities.invokeAndWait(() -> result[0] = DialogUtil.showDialog("版本更新","发现新版本" + version + "，是否更新？"));
                     }
                     if (result[0] == JOptionPane.YES_OPTION) {
                         // 创建安装包目录

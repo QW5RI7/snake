@@ -28,6 +28,9 @@ public class LoginFrame extends JFrame implements MouseListener {
 
     /** 登录界面构造方法 */
     public LoginFrame() {
+        // 检查版本号
+        Version.checkVersion();
+
         //初始化界面
         initJFrame();
 
@@ -39,9 +42,6 @@ public class LoginFrame extends JFrame implements MouseListener {
 
         //让当前界面显示出来
         setVisible(true);
-
-        // 检查版本号
-        Version.checkVersion();
     }
     /** 初始化界面 */
     public void initView() {
@@ -119,7 +119,7 @@ public class LoginFrame extends JFrame implements MouseListener {
     /** 初始化窗口 */
     public void initJFrame() {
         setSize(488, 430);//设置宽高
-        setTitle("贪吃蛇游戏 V1.0登录");//设置标题
+        setTitle("贪吃蛇游戏 V1.1登录");//设置标题
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);//设置关闭模式
         setLocationRelativeTo(null);//居中
         setLayout(null);//取消内部默认布局

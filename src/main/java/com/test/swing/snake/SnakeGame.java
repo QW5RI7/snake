@@ -61,6 +61,8 @@ public class SnakeGame extends JFrame {
     private Queue<int[]> snakeBody = new LinkedList<>();
     /** 蛇的速度*/
     private int speed = 100;
+    /** 音效是否静音*/
+    private boolean userMuted = false;
     /**
      * 游戏主窗口
      * 负责初始化游戏窗口，设置窗口标题、大小、位置、布局等属性
@@ -86,6 +88,7 @@ public class SnakeGame extends JFrame {
         scoreLabel.setBounds(5, 5, 100, 20);
         scoreLabel.setFont(new Font("微软雅黑", Font.PLAIN, 16));
         add(scoreLabel);
+        BackgroundMusic.start();
         timer = new Timer(speed, e -> {
             if (isRunning) {
                 moveSnakeBody();
@@ -127,7 +130,9 @@ public class SnakeGame extends JFrame {
         // 2. 设置菜单
         JMenu settingsMenu = new JMenu("设置");
         JMenuItem speedItem = new JMenuItem("设置速度 (E)");
+        JMenuItem muteItem = new JMenuItem("静音 (M)");
         settingsMenu.add(speedItem);
+        settingsMenu.add(muteItem);
 
         // 3. 帮助菜单
         JMenu helpMenu = new JMenu("帮助");
@@ -161,6 +166,9 @@ public class SnakeGame extends JFrame {
         aboutItem3.addActionListener(e -> DialogUtil.showDialog("QQ群：1083262649"));
         aboutItem4.addActionListener(e -> DialogUtil.openWebPage("https://gitee.com/wang32412345/snake-game"));
         aboutItem5.addActionListener(e -> DialogUtil.openWebPage("https://github.com/QW5RI7/snake"));
+        muteItem.addActionListener(e -> {
+            setMute(!userMuted);
+        });
 
         // 组装菜单栏
         menuBar.add(gameMenu);
@@ -181,6 +189,15 @@ public class SnakeGame extends JFrame {
         DialogUtil.showDialog("4. E键：设置速度 5. F1键：显示游戏规则 6. wasd键：控制蛇的方向");
         timer.start();
     }
+    // 菜单和键盘的静音处理
+    private void setMute(boolean mute) {
+        userMuted = mute;
+        // 只有游戏未暂停时才应用静音设置，否则保持暂停时的强制静音
+        if (isRunning) {
+            BackgroundMusic.setMuted(userMuted);
+            SoundEffect.setMuted(userMuted);
+        }
+    }
     /**
      * 设置游戏速度
      * 弹窗时，游戏定时器会暂停，用户确认后才会继续
@@ -196,8 +213,14 @@ public class SnakeGame extends JFrame {
     /**暂停/继续游戏*/
     private void togglePause() {
         isRunning = !isRunning;
-        if (isRunning){
-            timer.start();
+        if (isRunning) {
+            // 游戏恢复：根据用户静音设置恢复背景音乐状态
+            BackgroundMusic.setMuted(userMuted);
+            SoundEffect.setMuted(userMuted);
+        } else {
+            // 游戏暂停：强制静音（无论用户设置如何）
+            BackgroundMusic.setMuted(true);
+            SoundEffect.setMuted(true);
         }
     }
     /**
@@ -224,13 +247,15 @@ public class SnakeGame extends JFrame {
                 } else if (e.getKeyCode() == KeyEvent.VK_R) {
                     restartGame();
                 } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    dispose();
+                    System.exit(0);
                 } else if (e.getKeyCode() == KeyEvent.VK_E) {
                     changeSpeed();
                 } else if (e.getKeyCode() == KeyEvent.VK_F1) {
                     showRules();
                 } else if (e.getKeyCode() == KeyEvent.VK_F2) {
                     new RankingDialog(SnakeGame.this, Database.getAllUsersSortedByScore());
+                } else if (e.getKeyCode() == KeyEvent.VK_M) {
+                    setMute(!userMuted);
                 }
             }
         });
@@ -300,8 +325,12 @@ public class SnakeGame extends JFrame {
     private void moveSnakeBody() {
         if (snakeLength == 500) {
             Database.updateHighScore(thisUser.getUsername(), snakeLength - 3);
-            int result = DialogUtil.showDialog("游戏胜利", "蛇长度到达500，分数：" + (snakeLength - 3));
+            // 播放音效
+            SoundEffect.play("/sound/胜利.wav");
             isRunning = false;
+            BackgroundMusic.setMuted(true);
+            SoundEffect.setMuted(true);
+            int result = DialogUtil.showDialog("游戏胜利", "蛇长度到达500，分数：" + (snakeLength - 3));
             if (result == DialogUtil.CONFIRM) {
                 restartGame();
             }
@@ -331,8 +360,13 @@ public class SnakeGame extends JFrame {
         if (newHeadRow <= 0 || newHeadRow >= GRID_SIZE - 1 ||
                 newHeadCol <= 0 || newHeadCol >= GRID_SIZE - 1) {
             Database.updateHighScore(thisUser.getUsername(), snakeLength - 3);
-            int result = DialogUtil.showDialog("游戏结束", "蛇撞墙了（按R键重新开始），分数：" + (snakeLength - 3));
+            // 播放音效
+            SoundEffect.play("/sound/失败.wav");
             isRunning = false;
+            BackgroundMusic.setMuted(true);
+            SoundEffect.setMuted(true);
+            int result = DialogUtil.showDialog("游戏结束", "蛇撞墙了（按R键重新开始），分数：" + (snakeLength - 3));
+
             if (result == DialogUtil.CONFIRM) {
                 restartGame();
             }
@@ -342,8 +376,13 @@ public class SnakeGame extends JFrame {
         // 3. 检查是否撞到自己
         if (game[newHeadRow][newHeadCol] == CellType.SNAKE) {
             Database.updateHighScore(thisUser.getUsername(), snakeLength - 3);
-            int result =  DialogUtil.showDialog("游戏结束", "蛇撞自己了（按R键重新开始），分数：" + (snakeLength - 3));
+            // 播放音效
+            SoundEffect.play("/sound/失败.wav");
             isRunning = false;
+            BackgroundMusic.setMuted(true);
+            SoundEffect.setMuted(true);
+            int result =  DialogUtil.showDialog("游戏结束", "蛇撞自己了（按R键重新开始），分数：" + (snakeLength - 3));
+
             if (result == DialogUtil.CONFIRM) {
                 restartGame();
             }
@@ -366,6 +405,8 @@ public class SnakeGame extends JFrame {
                 game[tail[0]][tail[1]] = null;
             }
         } else {
+            // 播放吃食物音效
+            SoundEffect.play("/sound/进食.wav");
             snakeLength++;
             // 吃到食物，生成新的食物
             setFood();
@@ -381,6 +422,8 @@ public class SnakeGame extends JFrame {
         initGame();
         isRunning = true;
         timer.start();
+        BackgroundMusic.setMuted(userMuted);
+        SoundEffect.setMuted(userMuted);
     }
     /**游戏面板内部类，负责绘制游戏元素（蛇、食物等）*/
     private class GamePanel extends JPanel {
